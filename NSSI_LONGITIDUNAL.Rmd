@@ -185,8 +185,8 @@ coef(cv_lasso, cv_lasso$lambda.1se)
 # Plot correlation
 
 ```{r}
-install.packages("GGally")
-install.packages("ggcorrplot")
+# install.packages("GGally")
+# install.packages("ggcorrplot")
 library("GGally")
 library(ggcorrplot)
 
