@@ -104,5 +104,129 @@ NSSI_LASSO$gsi_b = ifelse(NSSI_LASSO$bsi_som_t.x_b + NSSI_LASSO$bsi_dep_t.x_b + 
 
 # final dataset for LASSO analysis
 NSSI_LASSO_final = NSSI_LASSO %>% select(id, self_inj_year.y, d91.x, d96, self_inj_year.x, d97.x, d81.x, d84.x_b, d87.x, d88.x, d89.x_b, fs.x, es.x, tis.x, ti_spride.x, ti_sshame.x, ti_salien.x, ti_spass.x, gend_dysph.x, tcs.x, safety.x, cc.x, soc_sup.x, fam_sup.x, frd_sup.x, sp_sup.x, bsi_som_t.x_b, bsi_dep_t.x_b, bsi_anx_t.x_b, gsi_b, yrs_horm_b, if_surg.x)
+
+
+```
+
+## LASSO preparation
+
+```{r}
+# set seeds for reproducibility
+set.seed(123)
+
+# Split the data into training and test set
+train_sample = NSSI_LASSO_final$self_inj_year.y %>% 
+  createDataPartition(p = 0.8, list = FALSE)
+
+train = NSSI_LASSO_final[train_sample, ]
+test = NSSI_LASSO_final[-train_sample, ]
+
+# Dumy code categorical predictor variables
+#  model.matrix() helps to create the matrix of predictors and also automatically converts categorical predictors to appropriate dummy variables, which is required for the glmnet() function.
+
+x = model.matrix(self_inj_year.y ~ ., train)[,-1]
+
+# Convert the outcome (class) to a numerical variable
+
+y = as.numeric(train$self_inj_year.y)
+
+```
+
+
+## Fit the lasso penalized regression model
+
+```{r}
+library(glmnet)
+# Find the best lambda using cross-validation
+# Find the optimal value of lambda that minimizes the cross-validation error:
+set.seed(123) 
+cv_lasso = cv.glmnet(x, y, alpha = 1, family = "binomial")
+plot(cv_lasso)
+cv_lasso$lambda.min
+
+# Fit the final model on the training data
+model = glmnet(x, y, alpha = 1, family = "binomial", lambda = cv_lasso$lambda.min)
+
+# Display regression coefficients
+coef(model)
+
+# Make predictions on the test data
+x_test = model.matrix(self_inj_year.y ~ ., test)[,-1]
+probabilities = model %>% predict(newx = x_test)
+predicted.classes = ifelse(probabilities > 0.5, "1", "0")
+
+# Model accuracy
+observed.classes = test$self_inj_year.y
+mean(predicted.classes == observed.classes)
+```
+
+## Notes
+
+```{r}
+# Find the optimal value of lambda that minimizes the cross-validation error
+# The plot displays the cross-validation error according to the log of lambda. The left dashed vertical line indicates that the log of the optimal value of lambda is approximately -5, which is the one that minimizes the prediction error. This lambda value will give the most accurate model. The exact value of lambda can be viewed as follow
+
+set.seed(123) 
+cv_lasso = cv.glmnet(x, y, alpha = 1, family = "binomial")
+plot(cv_lasso)
+cv_lasso$lambda.min
+
+# Using lambda.min as the best lambda, gives the following regression coefficients
+coef(cv_lasso, cv_lasso$lambda.min)
+# Using lambda.1se as the best lambda, gives the following regression coefficients
+coef(cv_lasso, cv_lasso$lambda.1se)
+
+# Setting lambda = lambda.1se produces a simpler model compared to lambda.min, but the model might be a little bit less accurate than the one obtained with lambda.min.
+
+
+```
+
+
+# Plot correlation
+
+```{r}
+install.packages("GGally")
+install.packages("ggcorrplot")
+library("GGally")
+library(ggcorrplot)
+
+# GGally
+corr_plot_a = ggcorr(NSSI_LASSO_final,
+       label = TRUE, 
+       label_alpha = FALSE,
+       digits = 2,
+       label_size = 1,
+       geom = "tile",
+       palette = "PuOr")
+
+corr_plot_a
+
+corr = round(cor(NSSI_LASSO_final), 1)
+p = cor_pmat(NSSI_LASSO_final)
+
+
+corr_plopt_b = ggcorrplot(corr, hc.order = TRUE, type = "lower",
+   lab = TRUE, 
+   lab_size = 2,
+   outline.col = "white",
+   ggtheme = ggplot2::theme_gray,
+   colors = c("#6D9EC1", "white", "#E46726"),
+   legend.title = "Correlation",
+   title = "Correlation of predictors")
+
+ggsave("correlation.png", corr_plopt_b)
+
+corr_plopt_c = ggcorrplot(corr, p.mat = p, hc.order = TRUE,
+    type = "lower",
+    lab = TRUE, 
+    lab_size = 2,
+    outline.col = "white",
+    ggtheme = ggplot2::theme_gray,
+    colors = c("#6D9EC1", "white", "#E46726"),
+    legend.title = "Correlation",
+    title = "Correlation of predictors"
+    ) + labs(caption="X = correlation non-significant at p < 0.05")
+    
+ggsave("correlation_c.png", corr_plopt_c, dpi = 300)
 ```
 
