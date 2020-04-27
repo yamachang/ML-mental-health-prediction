@@ -1,4 +1,4 @@
-# NSSI_LONGITIDUNAL
+# CCPX4199 Final Presentation
 
 ```{r}
 Final presentation for CCPX4199 Computational Psychiatry
