@@ -380,7 +380,12 @@ corr_plopt_b = ggcorrplot(corr, hc.order = TRUE, type = "lower",
    colors = c("#6D9EC1", "white", "#E46726"),
    legend.title = "Correlation",
    title = "Correlation of predictors")
+corr_plopt_b
+```
 
+![](NSSI_LONGITIDUNAL_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
 ggsave("correlation.png", corr_plopt_b)
 ```
 
@@ -397,7 +402,12 @@ corr_plopt_c = ggcorrplot(corr, p.mat = p, hc.order = TRUE,
     legend.title = "Correlation",
     title = "Correlation of predictors"
     ) + labs(caption="X = correlation non-significant at p < 0.05")
-    
+corr_plopt_c   
+```
+
+![](NSSI_LONGITIDUNAL_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
 ggsave("correlation_c.png", corr_plopt_c, dpi = 300)
 ```
 
