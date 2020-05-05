@@ -103,7 +103,7 @@ NSSI_LASSO$gs_it.x_b = ifelse(NSSI_LASSO$gs_it.x >= 63, 1, 0)
 NSSI_LASSO$gsi_b = ifelse(NSSI_LASSO$bsi_som_t.x_b + NSSI_LASSO$bsi_dep_t.x_b + NSSI_LASSO$bsi_anx_t.x_b >=2 | NSSI_LASSO$gs_it.x_b == 1, 1, 0)
 
 # final dataset for LASSO analysis
-NSSI_LASSO_final = NSSI_LASSO %>% select(id, self_inj_year.y, d91.x, d96, self_inj_year.x, d97.x, d81.x, d84.x_b, d87.x, d88.x, d89.x_b, fs.x, es.x, tis.x, ti_spride.x, ti_sshame.x, ti_salien.x, ti_spass.x, gend_dysph.x, tcs.x, safety.x, cc.x, soc_sup.x, fam_sup.x, frd_sup.x, sp_sup.x, bsi_som_t.x_b, bsi_dep_t.x_b, bsi_anx_t.x_b, gsi_b, yrs_horm_b, if_surg.x)
+NSSI_LASSO_final = NSSI_LASSO %>% select(self_inj_year.y, d91.x, d96, self_inj_year.x, d97.x, d81.x, d84.x_b, d87.x, d88.x, d89.x, d89.x_b, fs.x, es.x, tis.x, ti_spride.x, ti_sshame.x, ti_salien.x, ti_spass.x, gend_dysph.x, tcs.x, safety.x, cc.x, soc_sup.x, fam_sup.x, frd_sup.x, sp_sup.x, bsi_som_t.x_b, bsi_dep_t.x_b, bsi_anx_t.x_b, gsi_b, yrs_horm_b, if_surg.x)
 
 
 ```
@@ -181,6 +181,24 @@ coef(cv_lasso, cv_lasso$lambda.1se)
 
 ```
 
+# Prediction accuracy
+## AREA UNDER THE CURVE (AUC)
+```{r}
+# Using AREA UNDER THE CURVE (AUC) to assess the prediction accuracy 
+# How good is a classifier 
+library(ROCR)
+a = as.data.frame(observed.classes)
+pred = prediction(probabilities, a)
+perf = performance(pred, 'tpr', 'fpr')
+plot_auc = plot(perf)
+
+ggsave("auc.png", plot_auc, dpi = 300)
+
+AUC = performance(pred, 'auc')
+AUC
+```
+
+preds = predict(cv_lasso, newx = x_test, type = 'response')
 
 # Plot correlation
 
@@ -225,8 +243,11 @@ corr_plopt_c = ggcorrplot(corr, p.mat = p, hc.order = TRUE,
     colors = c("#6D9EC1", "white", "#E46726"),
     legend.title = "Correlation",
     title = "Correlation of predictors"
-    ) + labs(caption="X = correlation non-significant at p < 0.05")
+    ) + labs(caption="X = correlation non-significant at p < 0.05") +
+    scale_y_discrete(labels = c("Social Support","Family Support", "Peer Support", "Support from Important Others", "Pride", "Community Connectedness", "Transgender Congruence", "Sense of Safety", "Alienation", "Lifetime Suicide Frequency", "Past Year Suicide Frequency", "Past Year Suicide Attempt", "Somatization", "Anxiety", "Depression", "BSI-GSI", "Lifetime NSSI Frequency", "Past Year NSSI Frequency", "Felt Stigma", "Enacted Stigma", "Lifetime Suicide Ideation", "Lifetime Suicide Attempt", "Lifetime NSSI", "Past Year NSSI", "12-Month NSSI", "Past Year Suicidal Ideation", "Started surgery", "Had Surgery", "Gender Dysphoria",  "Investment in Passing", "Internalized Transphobia")) +
+    scale_x_discrete(labels = c("Family Support", "Peer Support", "Support from Important Others", "Pride", "Community Connectedness", "Transgender Congruence", "Sense of Safety", "Alienation", "Lifetime Suicide Frequency", "Past Year Suicide Frequency", "Past Year Suicide Attempt", "Somatization", "Anxiety", "Depression", "BSI-GSI", "Lifetime NSSI Frequency", "Past Year NSSI Frequency", "Felt Stigma", "Enacted Stigma", "Lifetime Suicide Ideation", "Lifetime Suicide Attempt", "Lifetime NSSI", "Past Year NSSI", "12-Month NSSI", "Past Year Suicidal Ideation", "Started surgery", "Had Surgery", "Gender Dysphoria",  "Investment in Passing", "Internalized Transphobia", "Shame"))
+
 corr_plopt_c   
-ggsave("correlation_c.png", corr_plopt_c, dpi = 300)
+ggsave("correlation_d.png", corr_plopt_c, width = 25, height = 25, units = "cm", dpi = 300)
 ```
 
