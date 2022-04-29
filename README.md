@@ -2,7 +2,7 @@
 A quantitative study predicting 12-month non-suicidal self injury (NSSI) among gender diverse individuals using LASSO Regularized Regression
 
 <p align="center">
-  <img src="https://github.com/yamachang/NSSI_LONGITIDUNAL/blob/master/cover-photo.jpg" width=50% >
+  <img src="https://github.com/yamachang/NSSI_LONGITIDUNAL/blob/master/NSSI_LONGITIDUNAL_files/cover-photo.jpg" width=50% >
 </p>
 
 <hr>
