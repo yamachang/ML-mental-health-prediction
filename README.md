@@ -1,4 +1,4 @@
-# Computational Psychiatry Final Presentation
+# Prediction of Mental Wellbeing among Transgender Individuals
 
 Research topic: Longitudinal Predictors of Non-Suicidal Self-Injury among Gender Diverse Population: Machine Learning Approaches
 
